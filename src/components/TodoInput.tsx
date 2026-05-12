@@ -4,9 +4,10 @@ import { Plus } from 'lucide-react';
 
 type TodoInputProps = {
   onAdd: (text: string) => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 };
 
-export default function TodoInput({ onAdd }: TodoInputProps) {
+export default function TodoInput({ onAdd, inputRef }: TodoInputProps) {
   const [value, setValue] = useState('');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,9 +21,10 @@ export default function TodoInput({ onAdd }: TodoInputProps) {
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
       <input
+        ref={inputRef}
         className={styles.input}
         type="text"
-        placeholder="Add a new task..."
+        placeholder="Add a new task… (N to focus)"
         value={value}
         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
         autoFocus

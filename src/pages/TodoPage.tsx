@@ -1,9 +1,12 @@
+import { useRef, useState, useCallback } from 'react';
 import styles from './TodoPage.module.css';
 import { useTodos } from '@/hooks/useTodos';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import TodoInput from '@/components/TodoInput';
 import TodoList from '@/components/TodoList';
 import TodoFooter from '@/components/TodoFooter';
-import { CheckSquare } from 'lucide-react';
+import KeyboardShortcutsHelp from '@/components/KeyboardShortcutsHelp';
+import { CheckSquare, Keyboard } from 'lucide-react';
 
 export default function TodoPage() {
   const {
@@ -19,6 +22,24 @@ export default function TodoPage() {
     completedCount,
   } = useTodos();
 
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [showHelp, setShowHelp] = useState(false);
+
+  const focusInput = useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  const toggleHelp = useCallback(() => {
+    setShowHelp((v) => !v);
+  }, []);
+
+  useKeyboardShortcuts({
+    onFocusInput: focusInput,
+    onClearCompleted: clearCompleted,
+    onFilterChange: setFilter,
+    onToggleHelp: toggleHelp,
+  });
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -28,10 +49,19 @@ export default function TodoPage() {
           </div>
           <h1 className={styles.title}>My Todos</h1>
           <p className={styles.subtitle}>Stay organized, get things done.</p>
+          <button
+            className={styles.helpBtn}
+            onClick={toggleHelp}
+            aria-label="Show keyboard shortcuts"
+            title="Keyboard shortcuts (?)"
+          >
+            <Keyboard size={16} />
+            <span>Shortcuts</span>
+          </button>
         </header>
 
         <main className={styles.main}>
-          <TodoInput onAdd={addTodo} />
+          <TodoInput onAdd={addTodo} inputRef={inputRef} />
           <TodoList
             todos={filteredTodos}
             onToggle={toggleTodo}
@@ -49,6 +79,8 @@ export default function TodoPage() {
           )}
         </main>
       </div>
+
+      {showHelp && <KeyboardShortcutsHelp onClose={() => setShowHelp(false)} />}
     </div>
   );
 }
